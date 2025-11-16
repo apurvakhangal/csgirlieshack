@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 
 // Gemini API configuration
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyBwZaiXWYNTC83rWYmWO1gTUiihAP6vNnI';
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 
 if (!apiKey) {

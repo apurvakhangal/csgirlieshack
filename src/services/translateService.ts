@@ -3,7 +3,7 @@
  * Uses Deep Translate API for frontend translation
  */
 
-const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY || 'cbf2b7b310mshcca8db68c5db3f3p1b80a5jsn1b1ef6f28d1f';
+const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const RAPIDAPI_HOST = 'deep-translate1.p.rapidapi.com';
 const TRANSLATE_API_URL = `https://${RAPIDAPI_HOST}/language/translate/v2`;
 
