@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { TranslatedText } from '@/components/TranslatedText';
-import { Play, Pause, RotateCcw, Volume2, Clock } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Clock, CloudRain, Trees, Coffee, Radio, Waves, Sparkles } from 'lucide-react';
 import { useUserStore } from '@/store/userStore';
+import { useSoundPlayer, type SoundType } from '@/hooks/useSoundPlayer';
+import { UniverseVisualization } from '@/components/UniverseVisualization';
 
 export default function FocusRoom() {
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
@@ -13,6 +16,18 @@ export default function FocusRoom() {
   const [mode, setMode] = useState<'focus' | 'break'>('focus');
   const [duration, setDuration] = useState('25');
   const addXP = useUserStore((state) => state.addXP);
+  
+  const {
+    currentSound,
+    isPlaying: isSoundPlaying,
+    volume,
+    isMuted,
+    playSound,
+    stopSound,
+    setVolume,
+    toggleMute,
+    frequencyData,
+  } = useSoundPlayer();
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -51,18 +66,46 @@ export default function FocusRoom() {
     setIsRunning(false);
   };
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="mb-8 flex items-center gap-3">
-          <Clock className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold"><TranslatedText text="Focus Room" /></h1>
-        </div>
-      </motion.div>
+  const handleSoundToggle = (sound: SoundType) => {
+    if (currentSound === sound && isSoundPlaying) {
+      stopSound();
+    } else {
+      playSound(sound);
+    }
+  };
 
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+  const soundOptions = [
+    { type: 'rain' as SoundType, icon: CloudRain, label: 'Rain Sounds' },
+    { type: 'forest' as SoundType, icon: Trees, label: 'Forest Birds' },
+    { type: 'cafe' as SoundType, icon: Coffee, label: 'Cafe Ambience' },
+    { type: 'white-noise' as SoundType, icon: Radio, label: 'White Noise' },
+    { type: 'ocean' as SoundType, icon: Waves, label: 'Ocean Waves' },
+    { type: 'space' as SoundType, icon: Sparkles, label: 'Space Ambience' },
+  ];
+
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background Visualization */}
+      <div className="fixed inset-0 z-0">
+        <UniverseVisualization
+          soundType={currentSound}
+          frequencyData={frequencyData}
+          isPlaying={isSoundPlaying}
+        />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="mb-8 flex items-center gap-3">
+            <Clock className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground"><TranslatedText text="Focus Room" /></h1>
+          </div>
+        </motion.div>
+
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         {/* Timer */}
-        <Card>
+        <Card className="bg-background/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle><TranslatedText text="Pomodoro Timer" /></CardTitle>
             <CardDescription>
@@ -151,31 +194,79 @@ export default function FocusRoom() {
 
         {/* Settings & Stats */}
         <div className="space-y-6">
-          <Card>
+          <Card className="bg-background/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle><TranslatedText text="Ambient Sounds" /></CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Volume2 className="h-5 w-5" />
+                <TranslatedText text="Ambient Sounds" />
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Volume2 className="mr-2 h-4 w-4" />
-                <TranslatedText text="Rain Sounds" />
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Volume2 className="mr-2 h-4 w-4" />
-                <TranslatedText text="Forest Birds" />
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Volume2 className="mr-2 h-4 w-4" />
-                <TranslatedText text="Cafe Ambience" />
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Volume2 className="mr-2 h-4 w-4" />
-                <TranslatedText text="White Noise" />
-              </Button>
+            <CardContent className="space-y-3">
+              {soundOptions.map((option) => {
+                const Icon = option.icon;
+                const isActive = currentSound === option.type && isSoundPlaying;
+                return (
+                  <Button
+                    key={option.type}
+                    variant={isActive ? 'default' : 'outline'}
+                    className="w-full justify-start"
+                    onClick={() => handleSoundToggle(option.type)}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    <TranslatedText text={option.label} />
+                    {isActive && (
+                      <motion.div
+                        className="ml-auto h-2 w-2 rounded-full bg-primary-foreground"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                      />
+                    )}
+                  </Button>
+                );
+              })}
+              
+              {/* Volume Control */}
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    {isMuted || volume === 0 ? (
+                      <VolumeX className="h-4 w-4" />
+                    ) : (
+                      <Volume2 className="h-4 w-4" />
+                    )}
+                    <TranslatedText text="Volume" />
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">{isMuted ? 'Muted' : `${Math.round(volume * 100)}%`}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleMute}
+                      className="h-8 w-8 p-0"
+                      title={isMuted ? 'Unmute' : 'Mute'}
+                    >
+                      {isMuted ? (
+                        <VolumeX className="h-4 w-4" />
+                      ) : (
+                        <Volume2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <Slider
+                  value={[volume]}
+                  onValueChange={(value) => setVolume(value[0])}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  className="w-full"
+                  disabled={isMuted}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-background/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle><TranslatedText text="Today's Stats" /></CardTitle>
             </CardHeader>
@@ -197,7 +288,7 @@ export default function FocusRoom() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-background/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle><TranslatedText text="Pro Tips" /></CardTitle>
             </CardHeader>
@@ -210,6 +301,7 @@ export default function FocusRoom() {
               </ul>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>
