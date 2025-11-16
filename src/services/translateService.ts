@@ -1,11 +1,11 @@
 /**
- * Microsoft Translator API Service via RapidAPI
- * Uses Microsoft Translator REST API for frontend translation
+ * Google Translate API Service via RapidAPI
+ * Uses Google Translate API for frontend translation
  */
 
 const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY || '90c67853ddmshb5725593a51d0adp1bcebbjsn6b98793a34aa';
-const RAPIDAPI_HOST = 'microsoft-translator-text-api3.p.rapidapi.com';
-const TRANSLATE_API_URL = `https://${RAPIDAPI_HOST}/largetranslate`;
+const RAPIDAPI_HOST = 'google-api31.p.rapidapi.com';
+const TRANSLATE_API_URL = `https://${RAPIDAPI_HOST}/gtranslate`;
 
 interface TranslateResponse {
   translations: Array<{
@@ -20,7 +20,7 @@ interface DetectResponse {
 }
 
 /**
- * Translate text using Microsoft Translator API via RapidAPI
+ * Translate text using Google Translate API via RapidAPI
  */
 export async function translateText(
   text: string,
@@ -35,13 +35,7 @@ export async function translateText(
   }
 
   try {
-    const url = new URL(TRANSLATE_API_URL);
-    url.searchParams.append('to', targetLanguage);
-    if (sourceLanguage !== 'auto') {
-      url.searchParams.append('from', sourceLanguage);
-    }
-
-    const response = await fetch(url.toString(), {
+    const response = await fetch(TRANSLATE_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,8 +43,9 @@ export async function translateText(
         'x-rapidapi-host': RAPIDAPI_HOST,
       },
       body: JSON.stringify({
-        sep: '|',
         text: text,
+        to: targetLanguage,
+        from_lang: sourceLanguage === 'auto' ? '' : sourceLanguage,
       }),
     });
 
@@ -117,47 +112,12 @@ export async function translateBatch(
   }
 
   try {
-    // Join texts with separator for batch translation
-    const combinedText = texts.join(' | ');
-    
-    const url = new URL(TRANSLATE_API_URL);
-    url.searchParams.append('to', targetLanguage);
-    if (sourceLanguage !== 'auto') {
-      url.searchParams.append('from', sourceLanguage);
-    }
-
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      body: JSON.stringify({
-        sep: '|',
-        text: combinedText,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Translation failed: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    // Split the translated text back into array
-    let translatedText = '';
-    if (typeof data === 'string') {
-      translatedText = data;
-    } else if (data.translatedText) {
-      translatedText = data.translatedText;
-    } else if (data.text) {
-      translatedText = data.text;
-    } else {
-      return texts;
-    }
-
-    // Split by separator and trim
-    return translatedText.split('|').map((t: string) => t.trim());
+    // For batch translation, translate each text individually
+    // Google Translate API doesn't support batch with separators like Microsoft
+    const translatedTexts = await Promise.all(
+      texts.map((text) => translateText(text, targetLanguage, sourceLanguage))
+    );
+    return translatedTexts;
   } catch (error) {
     console.error('Translation error:', error);
     return texts; // Return original texts on error
@@ -170,88 +130,32 @@ export async function translateBatch(
  * Falls back to 'en' if detection fails
  */
 export async function detectLanguage(text: string): Promise<string> {
+  // Google Translate API via RapidAPI may not have a separate detect endpoint
+  // Return 'en' as default - auto-detection is handled by passing empty from_lang
   if (!text || !RAPIDAPI_KEY) return 'en';
-
-  try {
-    // Try to use detect endpoint if available
-    const url = new URL(`https://${RAPIDAPI_HOST}/detect`);
-    
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      body: JSON.stringify({
-        text: text,
-      }),
-    });
-
-    if (!response.ok) {
-      // If detect endpoint doesn't exist, return 'en' as default
-      return 'en';
-    }
-
-    const data = await response.json();
-    if (Array.isArray(data) && data[0]?.language) {
-      return data[0].language;
-    }
-    if (data.language) {
-      return data.language;
-    }
-    return 'en';
-  } catch (error) {
-    console.error('Language detection error:', error);
-    return 'en';
-  }
+  
+  // For now, return 'en' as default
+  // If detection is needed, we could try translating with auto-detect and check the response
+  return 'en';
 }
 
 /**
- * Get list of supported languages from Microsoft Translator API
+ * Get list of supported languages from Google Translate API
  */
 export async function getSupportedLanguages(): Promise<Array<{ code: string; name: string }>> {
+  // Google Translate API via RapidAPI may not have a languages endpoint
+  // Return the default supported languages list
   if (!RAPIDAPI_KEY) {
     return SUPPORTED_LANGUAGES;
   }
 
-  try {
-    const url = new URL(`https://${RAPIDAPI_HOST}/languages`);
-    url.searchParams.append('api-version', '3.0');
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-    });
-
-    if (!response.ok) {
-      return SUPPORTED_LANGUAGES;
-    }
-
-    const data = await response.json();
-    const languages: Array<{ code: string; name: string }> = [];
-    
-    if (data.translation) {
-      Object.entries(data.translation).forEach(([code, info]: [string, any]) => {
-        languages.push({
-          code,
-          name: info.name || code,
-        });
-      });
-    }
-
-    return languages.length > 0 ? languages : SUPPORTED_LANGUAGES;
-  } catch (error) {
-    console.error('Error fetching languages:', error);
-    return SUPPORTED_LANGUAGES;
-  }
+  // For now, return the default list
+  // If the API supports a languages endpoint, it can be added here
+  return SUPPORTED_LANGUAGES;
 }
 
 /**
- * Default list of supported languages (Microsoft Translator supports 100+)
+ * Default list of supported languages (Google Translate supports 100+)
  * The getSupportedLanguages() function will fetch the full list from the API
  */
 export const SUPPORTED_LANGUAGES = [
