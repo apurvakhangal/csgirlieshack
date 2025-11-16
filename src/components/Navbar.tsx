@@ -17,6 +17,7 @@ import {
 import { useThemeStore } from '@/store/themeStore';
 import { useUserStore } from '@/store/userStore';
 import { SUPPORTED_LANGUAGES } from '@/services/translateService';
+import { TranslatedText } from '@/components/TranslatedText';
 import { motion } from 'framer-motion';
 
 export function Navbar() {
@@ -60,7 +61,7 @@ export function Navbar() {
               {navLinks.map((link) => (
                 <Link key={link.path} to={link.path}>
                   <Button variant="ghost" size="sm">
-                    {link.label}
+                    <TranslatedText text={link.label} />
                   </Button>
                 </Link>
               ))}
@@ -128,17 +129,17 @@ export function Navbar() {
                     {navLinks.map((link) => (
                       <DropdownMenuItem key={link.path} asChild>
                         <Link to={link.path} className="w-full">
-                          {link.label}
+                          <TranslatedText text={link.label} />
                         </Link>
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="w-full">
-                        Settings
+                        <TranslatedText text="Settings" />
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={logout}>
-                      Logout
+                      <TranslatedText text="Logout" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -155,11 +156,11 @@ export function Navbar() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="w-full">
-                        Settings
+                        <TranslatedText text="Settings" />
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={logout}>
-                      Logout
+                      <TranslatedText text="Logout" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -168,7 +169,7 @@ export function Navbar() {
           ) : (
             <Link to="/login">
               <Button variant="default" className="ml-2">
-                Get Started
+                <TranslatedText text="Get Started" />
               </Button>
             </Link>
           )}

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TranslatedText } from '@/components/TranslatedText';
 import { BarChart, TrendingUp, Clock, Target, Award } from 'lucide-react';
 
 export default function Analytics() {
@@ -9,7 +10,7 @@ export default function Analytics() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-8 flex items-center gap-3">
           <BarChart className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Analytics</h1>
+          <h1 className="text-3xl font-bold"><TranslatedText text="Analytics" /></h1>
         </div>
       </motion.div>
 
@@ -21,9 +22,9 @@ export default function Analytics() {
               <Clock className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Study Time</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Study Time" /></p>
               <p className="text-2xl font-bold">24.5h</p>
-              <p className="text-xs text-success">+12% this week</p>
+              <p className="text-xs text-success">+12% <TranslatedText text="this week" /></p>
             </div>
           </CardContent>
         </Card>
@@ -34,9 +35,9 @@ export default function Analytics() {
               <Target className="h-6 w-6 text-success" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Focus Score</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Focus Score" /></p>
               <p className="text-2xl font-bold">87%</p>
-              <p className="text-xs text-success">+5% this week</p>
+              <p className="text-xs text-success">+5% <TranslatedText text="this week" /></p>
             </div>
           </CardContent>
         </Card>
@@ -47,9 +48,9 @@ export default function Analytics() {
               <TrendingUp className="h-6 w-6 text-accent" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Streak</p>
-              <p className="text-2xl font-bold">12 days</p>
-              <p className="text-xs text-muted-foreground">Keep it up!</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Streak" /></p>
+              <p className="text-2xl font-bold">12 <TranslatedText text="days" /></p>
+              <p className="text-xs text-muted-foreground"><TranslatedText text="Keep it up!" /></p>
             </div>
           </CardContent>
         </Card>
@@ -60,9 +61,9 @@ export default function Analytics() {
               <Award className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Completed</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Completed" /></p>
               <p className="text-2xl font-bold">18</p>
-              <p className="text-xs text-muted-foreground">modules</p>
+              <p className="text-xs text-muted-foreground"><TranslatedText text="modules" /></p>
             </div>
           </CardContent>
         </Card>
@@ -71,17 +72,17 @@ export default function Analytics() {
       {/* Detailed Analytics */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="subjects">By Subject</TabsTrigger>
-          <TabsTrigger value="time">Time Analysis</TabsTrigger>
+          <TabsTrigger value="overview"><TranslatedText text="Overview" /></TabsTrigger>
+          <TabsTrigger value="subjects"><TranslatedText text="By Subject" /></TabsTrigger>
+          <TabsTrigger value="time"><TranslatedText text="Time Analysis" /></TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Study Time Trend</CardTitle>
-                <CardDescription>Your weekly study hours over the last month</CardDescription>
+                <CardTitle><TranslatedText text="Study Time Trend" /></CardTitle>
+                <CardDescription><TranslatedText text="Your weekly study hours over the last month" /></CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex h-64 items-end justify-around gap-2">
@@ -106,8 +107,8 @@ export default function Analytics() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Focus Score</CardTitle>
-                <CardDescription>Your concentration levels throughout the week</CardDescription>
+                <CardTitle><TranslatedText text="Focus Score" /></CardTitle>
+                <CardDescription><TranslatedText text="Your concentration levels throughout the week" /></CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -139,8 +140,8 @@ export default function Analytics() {
         <TabsContent value="subjects">
           <Card>
             <CardHeader>
-              <CardTitle>Performance by Subject</CardTitle>
-              <CardDescription>Your strongest and weakest areas</CardDescription>
+              <CardTitle><TranslatedText text="Performance by Subject" /></CardTitle>
+              <CardDescription><TranslatedText text="Your strongest and weakest areas" /></CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -178,29 +179,29 @@ export default function Analytics() {
         <TabsContent value="time">
           <Card>
             <CardHeader>
-              <CardTitle>Best Study Times</CardTitle>
-              <CardDescription>When you're most productive</CardDescription>
+              <CardTitle><TranslatedText text="Best Study Times" /></CardTitle>
+              <CardDescription><TranslatedText text="When you're most productive" /></CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center justify-between rounded-lg bg-success/10 p-4">
                   <div>
-                    <p className="font-semibold">Morning (8 AM - 12 PM)</p>
-                    <p className="text-sm text-muted-foreground">Your peak performance time</p>
+                    <p className="font-semibold"><TranslatedText text="Morning (8 AM - 12 PM)" /></p>
+                    <p className="text-sm text-muted-foreground"><TranslatedText text="Your peak performance time" /></p>
                   </div>
                   <div className="text-2xl font-bold text-success">92%</div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
                   <div>
-                    <p className="font-semibold">Afternoon (12 PM - 5 PM)</p>
-                    <p className="text-sm text-muted-foreground">Good focus levels</p>
+                    <p className="font-semibold"><TranslatedText text="Afternoon (12 PM - 5 PM)" /></p>
+                    <p className="text-sm text-muted-foreground"><TranslatedText text="Good focus levels" /></p>
                   </div>
                   <div className="text-2xl font-bold text-primary">78%</div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted p-4">
                   <div>
-                    <p className="font-semibold">Evening (5 PM - 10 PM)</p>
-                    <p className="text-sm text-muted-foreground">Lower concentration</p>
+                    <p className="font-semibold"><TranslatedText text="Evening (5 PM - 10 PM)" /></p>
+                    <p className="text-sm text-muted-foreground"><TranslatedText text="Lower concentration" /></p>
                   </div>
                   <div className="text-2xl font-bold text-muted-foreground">65%</div>
                 </div>

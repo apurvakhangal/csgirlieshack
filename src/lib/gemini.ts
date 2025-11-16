@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Gemini API configuration
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyDR6Da2GMet_0uw8afvkAnhjQ6d7jrbiWY';
-const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
+const modelName = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-flash';
 
 if (!apiKey) {
   console.warn('Gemini API key not configured. Please set VITE_GEMINI_API_KEY in your .env file');

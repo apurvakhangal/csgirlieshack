@@ -1,11 +1,51 @@
 /**
- * Google Translate API Service via RapidAPI
- * Uses Google Translate API for frontend translation
+ * Deep Translate API Service via RapidAPI
+ * Uses Deep Translate API for frontend translation
  */
 
-const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY || '90c67853ddmshb5725593a51d0adp1bcebbjsn6b98793a34aa';
-const RAPIDAPI_HOST = 'google-api31.p.rapidapi.com';
-const TRANSLATE_API_URL = `https://${RAPIDAPI_HOST}/gtranslate`;
+const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY || 'cbf2b7b310mshcca8db68c5db3f3p1b80a5jsn1b1ef6f28d1f';
+const RAPIDAPI_HOST = 'deep-translate1.p.rapidapi.com';
+const TRANSLATE_API_URL = `https://${RAPIDAPI_HOST}/language/translate/v2`;
+
+// Translation cache to avoid duplicate API calls
+// Key format: `${text}|${targetLanguage}`
+const translationCache = new Map<string, string>();
+
+// Get cache key
+function getCacheKey(text: string, targetLanguage: string): string {
+  return `${text}|${targetLanguage}`;
+}
+
+// Load cache from localStorage on init
+function loadCacheFromStorage() {
+  try {
+    const cached = localStorage.getItem('translationCache');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      Object.entries(parsed).forEach(([key, value]) => {
+        translationCache.set(key, value as string);
+      });
+    }
+  } catch (error) {
+    console.warn('Failed to load translation cache:', error);
+  }
+}
+
+// Save cache to localStorage
+function saveCacheToStorage() {
+  try {
+    const cacheObj: Record<string, string> = {};
+    translationCache.forEach((value, key) => {
+      cacheObj[key] = value;
+    });
+    localStorage.setItem('translationCache', JSON.stringify(cacheObj));
+  } catch (error) {
+    console.warn('Failed to save translation cache:', error);
+  }
+}
+
+// Initialize cache
+loadCacheFromStorage();
 
 interface TranslateResponse {
   translations: Array<{
@@ -20,7 +60,7 @@ interface DetectResponse {
 }
 
 /**
- * Translate text using Google Translate API via RapidAPI
+ * Translate text using Deep Translate API via RapidAPI
  */
 export async function translateText(
   text: string,
@@ -34,7 +74,17 @@ export async function translateText(
     return text;
   }
 
+  // Check cache first
+  const cacheKey = getCacheKey(text, targetLanguage);
+  if (translationCache.has(cacheKey)) {
+    return translationCache.get(cacheKey)!;
+  }
+
   try {
+    // Normalize language code (e.g., 'zh-Hans' -> 'zh', 'zh-Hant' -> 'zh')
+    const normalizedTargetLang = targetLanguage.split('-')[0];
+    const normalizedSourceLang = sourceLanguage === 'auto' ? 'en' : sourceLanguage.split('-')[0];
+
     const response = await fetch(TRANSLATE_API_URL, {
       method: 'POST',
       headers: {
@@ -43,56 +93,94 @@ export async function translateText(
         'x-rapidapi-host': RAPIDAPI_HOST,
       },
       body: JSON.stringify({
-        text: text,
-        to: targetLanguage,
-        from_lang: sourceLanguage === 'auto' ? '' : sourceLanguage,
+        q: text,
+        source: normalizedSourceLang,
+        target: normalizedTargetLang,
       }),
     });
 
+    // Get response as text first (can only read once)
+    const responseText = await response.text();
+    
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Translation failed: ${response.statusText} - ${errorText}`);
+      // Handle quota exceeded error gracefully
+      if (response.status === 429) {
+        console.warn('Translation API quota exceeded. Using cached translations or original text.');
+        // Return original text if quota exceeded and no cache
+        return text;
+      }
+      
+      console.error('Translation API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: responseText,
+      });
+      throw new Error(`Translation failed: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
-    const data = await response.json();
-    // The API response format may vary - handle different possible formats
-    console.log('Translation API response:', data); // Debug log
+    console.log('Translation API raw response:', responseText); // Debug log
+
+    // Try to parse as JSON
+    let data: any;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      // If not JSON, treat as plain string
+      if (responseText.trim()) {
+        return responseText.trim();
+      }
+      throw new Error('Empty response from translation API');
+    }
+
+    // Handle Deep Translate API response format
+    // Response format: { data: { translations: { translatedText: ["..."] } } }
+    let translatedResult: string = text;
     
-    // Handle different response formats
     if (typeof data === 'string') {
-      return data;
-    }
-    // Check for common response formats
-    if (data.translatedText) {
-      return data.translatedText;
-    }
-    if (data.text) {
-      return data.text;
-    }
-    if (data.result) {
-      return data.result;
-    }
-    if (data.translation) {
-      return data.translation;
-    }
-    // If response is an array (some APIs return arrays)
-    if (Array.isArray(data) && data.length > 0) {
+      translatedResult = data;
+    } else if (data.data?.translations?.translatedText && Array.isArray(data.data.translations.translatedText) && data.data.translations.translatedText.length > 0) {
+      // Deep Translate API format: { data: { translations: { translatedText: ["..."] } } }
+      translatedResult = data.data.translations.translatedText[0] || text;
+    } else if (data.data?.translations && Array.isArray(data.data.translations) && data.data.translations.length > 0) {
+      // Alternative Deep Translate API format: { data: { translations: [{ translatedText: "..." }] } }
+      translatedResult = data.data.translations[0].translatedText || text;
+    } else if (data.translatedText) {
+      translatedResult = data.translatedText;
+    } else if (data.text) {
+      translatedResult = data.text;
+    } else if (data.result) {
+      translatedResult = data.result;
+    } else if (data.translation) {
+      translatedResult = data.translation;
+    } else if (data.translated_text) {
+      translatedResult = data.translated_text;
+    } else if (data.data?.translatedText) {
+      translatedResult = data.data.translatedText;
+    } else if (data.data?.text) {
+      translatedResult = data.data.text;
+    } else if (Array.isArray(data) && data.length > 0) {
       if (typeof data[0] === 'string') {
-        return data[0];
+        translatedResult = data[0];
+      } else if (data[0].text) {
+        translatedResult = data[0].text;
+      } else if (data[0].translatedText) {
+        translatedResult = data[0].translatedText;
       }
-      if (data[0].text) {
-        return data[0].text;
-      }
-      if (data[0].translatedText) {
-        return data[0].translatedText;
-      }
+    } else {
+      console.warn('Unknown translation response format:', data);
     }
-    // Fallback: return original text if format is unknown
-    console.warn('Unknown translation response format:', data);
-    return text;
+    
+    // Cache the translation
+    if (translatedResult && translatedResult !== text) {
+      translationCache.set(cacheKey, translatedResult);
+      saveCacheToStorage();
+    }
+    
+    return translatedResult;
   } catch (error) {
     console.error('Translation error:', error);
-    return text; // Return original text on error
+    // Don't cache errors, but return original text
+    return text;
   }
 }
 
@@ -130,8 +218,8 @@ export async function translateBatch(
  * Falls back to 'en' if detection fails
  */
 export async function detectLanguage(text: string): Promise<string> {
-  // Google Translate API via RapidAPI may not have a separate detect endpoint
-  // Return 'en' as default - auto-detection is handled by passing empty from_lang
+  // Deep Translate API via RapidAPI may not have a separate detect endpoint
+  // Return 'en' as default - auto-detection is handled by passing 'en' as source
   if (!text || !RAPIDAPI_KEY) return 'en';
   
   // For now, return 'en' as default
@@ -140,10 +228,10 @@ export async function detectLanguage(text: string): Promise<string> {
 }
 
 /**
- * Get list of supported languages from Google Translate API
+ * Get list of supported languages from Deep Translate API
  */
 export async function getSupportedLanguages(): Promise<Array<{ code: string; name: string }>> {
-  // Google Translate API via RapidAPI may not have a languages endpoint
+  // Deep Translate API via RapidAPI may not have a languages endpoint
   // Return the default supported languages list
   if (!RAPIDAPI_KEY) {
     return SUPPORTED_LANGUAGES;
@@ -155,7 +243,30 @@ export async function getSupportedLanguages(): Promise<Array<{ code: string; nam
 }
 
 /**
- * Default list of supported languages (Google Translate supports 100+)
+ * Clear the translation cache
+ * Useful if you want to force fresh translations
+ */
+export function clearTranslationCache() {
+  translationCache.clear();
+  try {
+    localStorage.removeItem('translationCache');
+  } catch (error) {
+    console.warn('Failed to clear translation cache from storage:', error);
+  }
+}
+
+/**
+ * Get cache statistics
+ */
+export function getCacheStats() {
+  return {
+    size: translationCache.size,
+    keys: Array.from(translationCache.keys()),
+  };
+}
+
+/**
+ * Default list of supported languages (Deep Translate supports 100+)
  * The getSupportedLanguages() function will fetch the full list from the API
  */
 export const SUPPORTED_LANGUAGES = [
@@ -193,3 +304,4 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'el', name: 'Greek' },
   { code: 'hu', name: 'Hungarian' },
 ];
+

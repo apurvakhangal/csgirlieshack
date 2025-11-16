@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { signUp } from '@/services/authService';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Mail, Lock, User, Sparkles } from 'lucide-react';
 
 export default function Register() {
@@ -71,13 +72,13 @@ export default function Register() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Create Account</CardTitle>
-            <CardDescription>Start your learning journey today</CardDescription>
+            <CardTitle><TranslatedText text="Create Account" /></CardTitle>
+            <CardDescription><TranslatedText text="Start your learning journey today" /></CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name"><TranslatedText text="Full Name" /></Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -93,7 +94,7 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email"><TranslatedText text="Email" /></Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -109,7 +110,7 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password"><TranslatedText text="Password" /></Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -125,14 +126,14 @@ export default function Register() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create Account'}
+                {isLoading ? <TranslatedText text="Creating account..." /> : <TranslatedText text="Create Account" />}
               </Button>
             </form>
 
             <div className="mt-4 text-center text-sm">
-              Already have an account?{' '}
+              <TranslatedText text="Already have an account?" />{' '}
               <Link to="/login" className="text-primary hover:underline">
-                Sign in
+                <TranslatedText text="Sign in" />
               </Link>
             </div>
           </CardContent>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Users, MessageSquare, Trophy, ThumbsUp, Clock } from 'lucide-react';
 
 export default function Community() {
@@ -74,24 +75,24 @@ export default function Community() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-8 flex items-center gap-3">
           <Users className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Community</h1>
+          <h1 className="text-3xl font-bold"><TranslatedText text="Community" /></h1>
         </div>
       </motion.div>
 
       <Tabs defaultValue="forum" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="forum">Forum</TabsTrigger>
-          <TabsTrigger value="groups">Study Groups</TabsTrigger>
-          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="forum"><TranslatedText text="Forum" /></TabsTrigger>
+          <TabsTrigger value="groups"><TranslatedText text="Study Groups" /></TabsTrigger>
+          <TabsTrigger value="leaderboard"><TranslatedText text="Leaderboard" /></TabsTrigger>
         </TabsList>
 
         {/* Forum */}
         <TabsContent value="forum" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Join discussions and get help from the community
+              <TranslatedText text="Join discussions and get help from the community" />
             </p>
-            <Button>New Thread</Button>
+            <Button><TranslatedText text="New Thread" /></Button>
           </div>
 
           {forumThreads.map((thread, index) => (
@@ -109,21 +110,21 @@ export default function Community() {
                         <Badge variant="outline">{thread.category}</Badge>
                         <span className="text-xs text-muted-foreground">{thread.timeAgo}</span>
                       </div>
-                      <h3 className="mb-1 font-semibold">{thread.title}</h3>
-                      <p className="text-sm text-muted-foreground">by {thread.author}</p>
+                      <h3 className="mb-1 font-semibold"><TranslatedText text={thread.title} /></h3>
+                      <p className="text-sm text-muted-foreground"><TranslatedText text="by" /> {thread.author}</p>
                     </div>
                     <Button variant="ghost" size="sm">
-                      View
+                      <TranslatedText text="View" />
                     </Button>
                   </div>
                   <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <MessageSquare className="h-4 w-4" />
-                      <span>{thread.replies} replies</span>
+                      <span>{thread.replies} <TranslatedText text="replies" /></span>
                     </div>
                     <div className="flex items-center gap-1">
                       <ThumbsUp className="h-4 w-4" />
-                      <span>{thread.likes} likes</span>
+                      <span>{thread.likes} <TranslatedText text="likes" /></span>
                     </div>
                   </div>
                 </CardContent>
@@ -136,9 +137,9 @@ export default function Community() {
         <TabsContent value="groups" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Connect with learners and study together
+              <TranslatedText text="Connect with learners and study together" />
             </p>
-            <Button>Create Group</Button>
+            <Button><TranslatedText text="Create Group" /></Button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -151,17 +152,17 @@ export default function Community() {
               >
                 <Card>
                   <CardHeader>
-                    <CardTitle>{group.name}</CardTitle>
-                    <CardDescription>{group.description}</CardDescription>
+                    <CardTitle><TranslatedText text={group.name} /></CardTitle>
+                    <CardDescription><TranslatedText text={group.description} /></CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{group.members} members</span>
+                        <span>{group.members} <TranslatedText text="members" /></span>
                       </div>
                       <Button variant={group.isJoined ? 'outline' : 'default'} size="sm">
-                        {group.isJoined ? 'Leave' : 'Join'}
+                        {group.isJoined ? <TranslatedText text="Leave" /> : <TranslatedText text="Join" />}
                       </Button>
                     </div>
                   </CardContent>
@@ -177,14 +178,14 @@ export default function Community() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Top Learners</CardTitle>
-                  <CardDescription>This week's XP rankings</CardDescription>
+                  <CardTitle><TranslatedText text="Top Learners" /></CardTitle>
+                  <CardDescription><TranslatedText text="This week's XP rankings" /></CardDescription>
                 </div>
                 <Tabs defaultValue="week" className="w-auto">
                   <TabsList>
-                    <TabsTrigger value="week">Week</TabsTrigger>
-                    <TabsTrigger value="month">Month</TabsTrigger>
-                    <TabsTrigger value="all">All Time</TabsTrigger>
+                    <TabsTrigger value="week"><TranslatedText text="Week" /></TabsTrigger>
+                    <TabsTrigger value="month"><TranslatedText text="Month" /></TabsTrigger>
+                    <TabsTrigger value="all"><TranslatedText text="All Time" /></TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>

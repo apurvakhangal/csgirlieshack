@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Brain, Sparkles, Target, Users, Zap, Globe } from 'lucide-react';
 
 export default function Landing() {
@@ -74,26 +75,25 @@ export default function Landing() {
             </div>
 
             <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-6xl">
-              Welcome to{' '}
+              <TranslatedText text="Welcome to" />{' '}
               <span className="bg-gradient-cosmic bg-clip-text text-transparent">
                 EduNiverse
               </span>
             </h1>
             
             <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
-              An inclusive, AI-powered learning platform designed for everyone.
-              Study smarter, learn faster, achieve more.
+              <TranslatedText text="An inclusive, AI-powered learning platform designed for everyone. Study smarter, learn faster, achieve more." />
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link to="/register">
                 <Button size="lg" className="shadow-glow-primary">
-                  Start Learning Free
+                  <TranslatedText text="Start Learning Free" />
                 </Button>
               </Link>
               <Link to="/login">
                 <Button size="lg" variant="outline">
-                  Sign In
+                  <TranslatedText text="Sign In" />
                 </Button>
               </Link>
             </div>
@@ -117,10 +117,10 @@ export default function Landing() {
             className="mb-12 text-center"
           >
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Everything You Need to Excel
+              <TranslatedText text="Everything You Need to Excel" />
             </h2>
             <p className="text-lg text-muted-foreground">
-              Powerful features designed for learners of all abilities
+              <TranslatedText text="Powerful features designed for learners of all abilities" />
             </p>
           </motion.div>
 
@@ -135,8 +135,8 @@ export default function Landing() {
               >
                 <Card className="h-full p-6 transition-all hover:shadow-glow-primary">
                   <feature.icon className="mb-4 h-10 w-10 text-primary" />
-                  <h3 className="mb-2 text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="mb-2 text-xl font-semibold"><TranslatedText text={feature.title} /></h3>
+                  <p className="text-muted-foreground"><TranslatedText text={feature.description} /></p>
                 </Card>
               </motion.div>
             ))}
@@ -154,14 +154,14 @@ export default function Landing() {
             className="mx-auto max-w-3xl rounded-2xl bg-gradient-cosmic p-8 text-center md:p-12"
           >
             <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
-              Ready to Transform Your Learning?
+              <TranslatedText text="Ready to Transform Your Learning?" />
             </h2>
             <p className="mb-8 text-lg text-white/90">
-              Join thousands of students already learning smarter with EduNiverse
+              <TranslatedText text="Join thousands of students already learning smarter with EduNiverse" />
             </p>
             <Link to="/register">
               <Button size="lg" variant="secondary" className="shadow-glow-accent">
-                Get Started Now
+                <TranslatedText text="Get Started Now" />
               </Button>
             </Link>
           </motion.div>

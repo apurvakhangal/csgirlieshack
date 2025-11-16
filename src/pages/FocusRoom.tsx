@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Play, Pause, RotateCcw, Volume2, Clock } from 'lucide-react';
 import { useUserStore } from '@/store/userStore';
 
@@ -55,7 +56,7 @@ export default function FocusRoom() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-8 flex items-center gap-3">
           <Clock className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Focus Room</h1>
+          <h1 className="text-3xl font-bold"><TranslatedText text="Focus Room" /></h1>
         </div>
       </motion.div>
 
@@ -63,9 +64,9 @@ export default function FocusRoom() {
         {/* Timer */}
         <Card>
           <CardHeader>
-            <CardTitle>Pomodoro Timer</CardTitle>
+            <CardTitle><TranslatedText text="Pomodoro Timer" /></CardTitle>
             <CardDescription>
-              Stay focused and productive with timed work sessions
+              <TranslatedText text="Stay focused and productive with timed work sessions" />
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
@@ -104,7 +105,7 @@ export default function FocusRoom() {
                   {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
                 </motion.div>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {mode === 'focus' ? 'Focus Time' : 'Break Time'}
+                  {mode === 'focus' ? <TranslatedText text="Focus Time" /> : <TranslatedText text="Break Time" />}
                 </p>
               </div>
             </div>
@@ -115,24 +116,24 @@ export default function FocusRoom() {
                 {isRunning ? (
                   <>
                     <Pause className="mr-2 h-4 w-4" />
-                    Pause
+                    <TranslatedText text="Pause" />
                   </>
                 ) : (
                   <>
                     <Play className="mr-2 h-4 w-4" />
-                    Start
+                    <TranslatedText text="Start" />
                   </>
                 )}
               </Button>
               <Button size="lg" variant="outline" onClick={resetTimer}>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Reset
+                <TranslatedText text="Reset" />
               </Button>
             </div>
 
             {/* Duration Selector */}
             <div className="mt-6 w-full max-w-xs">
-              <label className="mb-2 block text-sm font-medium">Duration (minutes)</label>
+              <label className="mb-2 block text-sm font-medium"><TranslatedText text="Duration (minutes)" /></label>
               <Select value={duration} onValueChange={handleDurationChange} disabled={isRunning}>
                 <SelectTrigger>
                   <SelectValue />
@@ -152,44 +153,44 @@ export default function FocusRoom() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Ambient Sounds</CardTitle>
+              <CardTitle><TranslatedText text="Ambient Sounds" /></CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start">
                 <Volume2 className="mr-2 h-4 w-4" />
-                Rain Sounds
+                <TranslatedText text="Rain Sounds" />
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Volume2 className="mr-2 h-4 w-4" />
-                Forest Birds
+                <TranslatedText text="Forest Birds" />
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Volume2 className="mr-2 h-4 w-4" />
-                Cafe Ambience
+                <TranslatedText text="Cafe Ambience" />
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Volume2 className="mr-2 h-4 w-4" />
-                White Noise
+                <TranslatedText text="White Noise" />
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Today's Stats</CardTitle>
+              <CardTitle><TranslatedText text="Today's Stats" /></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="mb-1 flex justify-between text-sm">
-                  <span>Focus Sessions</span>
+                  <span><TranslatedText text="Focus Sessions" /></span>
                   <span className="font-semibold">3</span>
                 </div>
                 <div className="mb-1 flex justify-between text-sm">
-                  <span>Total Time</span>
+                  <span><TranslatedText text="Total Time" /></span>
                   <span className="font-semibold">1h 15m</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>XP Earned</span>
+                  <span><TranslatedText text="XP Earned" /></span>
                   <span className="font-semibold text-success">+150 XP</span>
                 </div>
               </div>
@@ -198,14 +199,14 @@ export default function FocusRoom() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Pro Tips</CardTitle>
+              <CardTitle><TranslatedText text="Pro Tips" /></CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Take a 5-minute break every 25 minutes</li>
-                <li>• Stay hydrated during focus sessions</li>
-                <li>• Remove distractions before starting</li>
-                <li>• Earn 2 XP per focused minute</li>
+                <li>• <TranslatedText text="Take a 5-minute break every 25 minutes" /></li>
+                <li>• <TranslatedText text="Stay hydrated during focus sessions" /></li>
+                <li>• <TranslatedText text="Remove distractions before starting" /></li>
+                <li>• <TranslatedText text="Earn 2 XP per focused minute" /></li>
               </ul>
             </CardContent>
           </Card>

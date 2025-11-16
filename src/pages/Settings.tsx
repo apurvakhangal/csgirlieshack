@@ -10,6 +10,7 @@ import { Settings as SettingsIcon, User, Bell, Shield, Palette } from 'lucide-re
 import { useThemeStore } from '@/store/themeStore';
 import { useUserStore } from '@/store/userStore';
 import { SUPPORTED_LANGUAGES } from '@/services/translateService';
+import { TranslatedText } from '@/components/TranslatedText';
 
 export default function Settings() {
   const { mode, setMode, isDyslexia, toggleDyslexia, isColorblind, toggleColorblind, language, setLanguage } =
@@ -21,36 +22,36 @@ export default function Settings() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-8 flex items-center gap-3">
           <SettingsIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Settings</h1>
+          <h1 className="text-3xl font-bold"><TranslatedText text="Settings" /></h1>
         </div>
       </motion.div>
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="profile"><TranslatedText text="Profile" /></TabsTrigger>
+          <TabsTrigger value="accessibility"><TranslatedText text="Accessibility" /></TabsTrigger>
+          <TabsTrigger value="notifications"><TranslatedText text="Notifications" /></TabsTrigger>
+          <TabsTrigger value="privacy"><TranslatedText text="Privacy" /></TabsTrigger>
         </TabsList>
 
         {/* Profile Settings */}
         <TabsContent value="profile">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Settings</CardTitle>
-              <CardDescription>Manage your account information</CardDescription>
+              <CardTitle><TranslatedText text="Profile Settings" /></CardTitle>
+              <CardDescription><TranslatedText text="Manage your account information" /></CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name"><TranslatedText text="Full Name" /></Label>
                 <Input id="name" defaultValue={user?.name} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email"><TranslatedText text="Email" /></Label>
                 <Input id="email" type="email" defaultValue={user?.email} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="language">Preferred Language</Label>
+                <Label htmlFor="language"><TranslatedText text="Preferred Language" /></Label>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger id="language">
                     <SelectValue />
@@ -64,7 +65,7 @@ export default function Settings() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button>Save Changes</Button>
+              <Button><TranslatedText text="Save Changes" /></Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -74,15 +75,15 @@ export default function Settings() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Theme Settings</CardTitle>
-                <CardDescription>Customize your visual experience</CardDescription>
+                <CardTitle><TranslatedText text="Theme Settings" /></CardTitle>
+                <CardDescription><TranslatedText text="Customize your visual experience" /></CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Theme Mode</p>
+                    <p className="font-medium"><TranslatedText text="Theme Mode" /></p>
                     <p className="text-sm text-muted-foreground">
-                      Choose your preferred theme
+                      <TranslatedText text="Choose your preferred theme" />
                     </p>
                   </div>
                   <Select value={mode} onValueChange={(value: any) => setMode(value)}>
@@ -90,8 +91,8 @@ export default function Settings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="light"><TranslatedText text="Light" /></SelectItem>
+                      <SelectItem value="dark"><TranslatedText text="Dark" /></SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -100,15 +101,15 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Accessibility Features</CardTitle>
-                <CardDescription>Enable features to enhance your experience</CardDescription>
+                <CardTitle><TranslatedText text="Accessibility Features" /></CardTitle>
+                <CardDescription><TranslatedText text="Enable features to enhance your experience" /></CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Dyslexia-Friendly Mode</p>
+                    <p className="font-medium"><TranslatedText text="Dyslexia-Friendly Mode" /></p>
                     <p className="text-sm text-muted-foreground">
-                      Uses OpenDyslexic font and increased spacing
+                      <TranslatedText text="Uses OpenDyslexic font and increased spacing" />
                     </p>
                   </div>
                   <Switch checked={isDyslexia} onCheckedChange={toggleDyslexia} />
@@ -116,9 +117,9 @@ export default function Settings() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Colorblind-Friendly Mode</p>
+                    <p className="font-medium"><TranslatedText text="Colorblind-Friendly Mode" /></p>
                     <p className="text-sm text-muted-foreground">
-                      Uses high-contrast, accessible color palette
+                      <TranslatedText text="Uses high-contrast, accessible color palette" />
                     </p>
                   </div>
                   <Switch checked={isColorblind} onCheckedChange={toggleColorblind} />
@@ -126,9 +127,9 @@ export default function Settings() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Screen Reader Support</p>
+                    <p className="font-medium"><TranslatedText text="Screen Reader Support" /></p>
                     <p className="text-sm text-muted-foreground">
-                      Enhanced ARIA labels and descriptions
+                      <TranslatedText text="Enhanced ARIA labels and descriptions" />
                     </p>
                   </div>
                   <Switch defaultChecked />
@@ -136,9 +137,9 @@ export default function Settings() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Reduce Motion</p>
+                    <p className="font-medium"><TranslatedText text="Reduce Motion" /></p>
                     <p className="text-sm text-muted-foreground">
-                      Minimize animations and transitions
+                      <TranslatedText text="Minimize animations and transitions" />
                     </p>
                   </div>
                   <Switch />
@@ -148,8 +149,8 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Font Size</CardTitle>
-                <CardDescription>Adjust text size for better readability</CardDescription>
+                <CardTitle><TranslatedText text="Font Size" /></CardTitle>
+                <CardDescription><TranslatedText text="Adjust text size for better readability" /></CardDescription>
               </CardHeader>
               <CardContent>
                 <Select defaultValue="medium">
@@ -157,10 +158,10 @@ export default function Settings() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
-                    <SelectItem value="xlarge">Extra Large</SelectItem>
+                    <SelectItem value="small"><TranslatedText text="Small" /></SelectItem>
+                    <SelectItem value="medium"><TranslatedText text="Medium" /></SelectItem>
+                    <SelectItem value="large"><TranslatedText text="Large" /></SelectItem>
+                    <SelectItem value="xlarge"><TranslatedText text="Extra Large" /></SelectItem>
                   </SelectContent>
                 </Select>
               </CardContent>
@@ -172,15 +173,15 @@ export default function Settings() {
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Choose what updates you want to receive</CardDescription>
+              <CardTitle><TranslatedText text="Notification Preferences" /></CardTitle>
+              <CardDescription><TranslatedText text="Choose what updates you want to receive" /></CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Study Reminders</p>
+                  <p className="font-medium"><TranslatedText text="Study Reminders" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Get reminded about your study schedule
+                    <TranslatedText text="Get reminded about your study schedule" />
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -188,9 +189,9 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Achievement Notifications</p>
+                  <p className="font-medium"><TranslatedText text="Achievement Notifications" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Be notified when you earn XP or badges
+                    <TranslatedText text="Be notified when you earn XP or badges" />
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -198,9 +199,9 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Community Updates</p>
+                  <p className="font-medium"><TranslatedText text="Community Updates" /></p>
                   <p className="text-sm text-muted-foreground">
-                    New forum replies and group activities
+                    <TranslatedText text="New forum replies and group activities" />
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -208,9 +209,9 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Weekly Progress Report</p>
+                  <p className="font-medium"><TranslatedText text="Weekly Progress Report" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Summary of your learning progress
+                    <TranslatedText text="Summary of your learning progress" />
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -223,15 +224,15 @@ export default function Settings() {
         <TabsContent value="privacy">
           <Card>
             <CardHeader>
-              <CardTitle>Privacy & Security</CardTitle>
-              <CardDescription>Manage your data and security settings</CardDescription>
+              <CardTitle><TranslatedText text="Privacy & Security" /></CardTitle>
+              <CardDescription><TranslatedText text="Manage your data and security settings" /></CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Profile Visibility</p>
+                  <p className="font-medium"><TranslatedText text="Profile Visibility" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Control who can see your profile
+                    <TranslatedText text="Control who can see your profile" />
                   </p>
                 </div>
                 <Select defaultValue="friends">
@@ -239,18 +240,18 @@ export default function Settings() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public">Public</SelectItem>
-                    <SelectItem value="friends">Friends</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="public"><TranslatedText text="Public" /></SelectItem>
+                    <SelectItem value="friends"><TranslatedText text="Friends" /></SelectItem>
+                    <SelectItem value="private"><TranslatedText text="Private" /></SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Show on Leaderboard</p>
+                  <p className="font-medium"><TranslatedText text="Show on Leaderboard" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Display your ranking publicly
+                    <TranslatedText text="Display your ranking publicly" />
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -258,16 +259,16 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Analytics Data</p>
+                  <p className="font-medium"><TranslatedText text="Analytics Data" /></p>
                   <p className="text-sm text-muted-foreground">
-                    Allow collection of learning data
+                    <TranslatedText text="Allow collection of learning data" />
                   </p>
                 </div>
                 <Switch defaultChecked />
               </div>
 
               <div className="pt-4">
-                <Button variant="destructive">Delete Account</Button>
+                <Button variant="destructive"><TranslatedText text="Delete Account" /></Button>
               </div>
             </CardContent>
           </Card>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { TranslatedText } from '@/components/TranslatedText';
 import { BookOpen, Plus, Clock, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -68,11 +69,11 @@ export default function Courses() {
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BookOpen className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">My Courses</h1>
+            <h1 className="text-3xl font-bold"><TranslatedText text="My Courses" /></h1>
           </div>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            New Course
+            <TranslatedText text="New Course" />
           </Button>
         </div>
       </motion.div>
@@ -85,7 +86,7 @@ export default function Courses() {
               <BookOpen className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Active Courses</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Active Courses" /></p>
               <p className="text-2xl font-bold">{courses.length}</p>
             </div>
           </CardContent>
@@ -97,7 +98,7 @@ export default function Courses() {
               <Star className="h-6 w-6 text-success" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Completed Modules</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Completed Modules" /></p>
               <p className="text-2xl font-bold">
                 {courses.reduce((sum, c) => sum + c.completedModules, 0)}
               </p>
@@ -111,7 +112,7 @@ export default function Courses() {
               <Clock className="h-6 w-6 text-accent" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Learning Hours</p>
+              <p className="text-sm text-muted-foreground"><TranslatedText text="Learning Hours" /></p>
               <p className="text-2xl font-bold">
                 {courses.reduce((sum, c) => sum + c.estimatedHours, 0)}h
               </p>
@@ -133,27 +134,27 @@ export default function Courses() {
               <CardHeader>
                 <div className="mb-2 flex items-start justify-between">
                   <Badge className={difficultyColors[course.difficulty]}>
-                    {course.difficulty}
+                    <TranslatedText text={course.difficulty} />
                   </Badge>
                   <div className="flex items-center gap-1 text-sm">
                     <Star className="h-4 w-4 fill-success text-success" />
                     <span>{course.rating}</span>
                   </div>
                 </div>
-                <CardTitle className="line-clamp-1">{course.title}</CardTitle>
+                <CardTitle className="line-clamp-1"><TranslatedText text={course.title} /></CardTitle>
                 <CardDescription className="line-clamp-2">
-                  {course.description}
+                  <TranslatedText text={course.description} />
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
+                    <span className="text-muted-foreground"><TranslatedText text="Progress" /></span>
                     <span className="font-semibold">{course.progress}%</span>
                   </div>
                   <Progress value={course.progress} />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {course.completedModules} of {course.totalModules} modules completed
+                    {course.completedModules} <TranslatedText text="of" /> {course.totalModules} <TranslatedText text="modules completed" />
                   </p>
                 </div>
 
@@ -162,7 +163,7 @@ export default function Courses() {
                     <Clock className="h-4 w-4" />
                     <span>{course.estimatedHours}h</span>
                   </div>
-                  <Button size="sm">Continue</Button>
+                  <Button size="sm"><TranslatedText text="Continue" /></Button>
                 </div>
               </CardContent>
             </Card>

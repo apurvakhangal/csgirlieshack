@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/services/authService';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Mail, Lock, Sparkles } from 'lucide-react';
 
 export default function Login() {
@@ -60,13 +61,13 @@ export default function Login() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Sign in to continue your learning journey</CardDescription>
+            <CardTitle><TranslatedText text="Welcome Back" /></CardTitle>
+            <CardDescription><TranslatedText text="Sign in to continue your learning journey" /></CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email"><TranslatedText text="Email" /></Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -82,7 +83,7 @@ export default function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password"><TranslatedText text="Password" /></Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -98,14 +99,14 @@ export default function Login() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? <TranslatedText text="Signing in..." /> : <TranslatedText text="Sign In" />}
               </Button>
             </form>
 
             <div className="mt-4 text-center text-sm">
-              Don't have an account?{' '}
+              <TranslatedText text="Don't have an account?" />{' '}
               <Link to="/register" className="text-primary hover:underline">
-                Sign up
+                <TranslatedText text="Sign up" />
               </Link>
             </div>
           </CardContent>

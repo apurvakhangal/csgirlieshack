@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { chatWithGemini } from '@/lib/gemini';
+import { TranslatedText } from '@/components/TranslatedText';
+import { useTranslatedText } from '@/hooks/useTranslation';
 import { Sparkles, Send, Mic, Volume2, Languages, Loader2 } from 'lucide-react';
 
 interface Message {
@@ -18,6 +20,7 @@ export default function AIBot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const placeholderText = useTranslatedText('Ask me anything...');
 
   const suggestions = [
     'Explain quantum physics',
@@ -66,7 +69,7 @@ export default function AIBot() {
           <div className="flex items-center justify-between border-b p-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h1 className="text-xl font-bold">AI Study Assistant</h1>
+              <h1 className="text-xl font-bold"><TranslatedText text="AI Study Assistant" /></h1>
             </div>
             <div className="flex gap-2">
               <Button variant="ghost" size="icon" title="Translate">
@@ -84,8 +87,8 @@ export default function AIBot() {
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center text-muted-foreground">
                     <Sparkles className="mx-auto mb-4 h-12 w-12 opacity-50" />
-                    <p className="text-lg font-medium">Start a conversation</p>
-                    <p className="text-sm">Ask me anything about your studies!</p>
+                    <p className="text-lg font-medium"><TranslatedText text="Start a conversation" /></p>
+                    <p className="text-sm"><TranslatedText text="Ask me anything about your studies!" /></p>
                   </div>
                 </div>
               ) : (
@@ -114,7 +117,7 @@ export default function AIBot() {
           <div className="border-t p-4">
             <div className="flex gap-2">
               <Input
-                placeholder="Ask me anything..."
+                placeholder={placeholderText}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSend()}
@@ -137,7 +140,7 @@ export default function AIBot() {
         {/* Suggestions Sidebar */}
         <div className="hidden lg:block space-y-4">
           <Card className="p-4">
-            <h3 className="mb-4 font-semibold">Quick Prompts</h3>
+            <h3 className="mb-4 font-semibold"><TranslatedText text="Quick Prompts" /></h3>
             <div className="space-y-2">
               {suggestions.map((suggestion) => (
                 <Button
@@ -146,19 +149,19 @@ export default function AIBot() {
                   className="w-full justify-start text-left"
                   onClick={() => setInput(suggestion)}
                 >
-                  {suggestion}
+                  <TranslatedText text={suggestion} />
                 </Button>
               ))}
             </div>
           </Card>
 
           <Card className="p-4">
-            <h3 className="mb-2 font-semibold">Pro Tips</h3>
+            <h3 className="mb-2 font-semibold"><TranslatedText text="Pro Tips" /></h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Be specific with your questions</li>
-              <li>• Ask for examples or explanations</li>
-              <li>• Request step-by-step solutions</li>
-              <li>• Use voice input for faster queries</li>
+              <li>• <TranslatedText text="Be specific with your questions" /></li>
+              <li>• <TranslatedText text="Ask for examples or explanations" /></li>
+              <li>• <TranslatedText text="Request step-by-step solutions" /></li>
+              <li>• <TranslatedText text="Use voice input for faster queries" /></li>
             </ul>
           </Card>
         </div>
