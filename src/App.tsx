@@ -18,6 +18,7 @@ import AIBot from "./pages/AIBot";
 import Roadmap from "./pages/Roadmap";
 import Notes from "./pages/Notes";
 import FocusRoom from "./pages/FocusRoom";
+import StudyVR from "./pages/StudyVR";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Community from "./pages/Community";
@@ -90,6 +91,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <FocusRoom />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/study-vr"
+                    element={
+                      <ProtectedRoute>
+                        <StudyVR />
                       </ProtectedRoute>
                     }
                   />
