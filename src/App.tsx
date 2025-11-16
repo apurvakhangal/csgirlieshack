@@ -19,6 +19,7 @@ import Roadmap from "./pages/Roadmap";
 import Notes from "./pages/Notes";
 import FocusRoom from "./pages/FocusRoom";
 import Courses from "./pages/Courses";
+import CourseDetail from "./pages/CourseDetail";
 import Community from "./pages/Community";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -97,6 +98,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Courses />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/courses/:courseId"
+                    element={
+                      <ProtectedRoute>
+                        <CourseDetail />
                       </ProtectedRoute>
                     }
                   />

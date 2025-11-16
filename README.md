@@ -32,9 +32,35 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the backend server (in one terminal)
+npm run dev:server
+
+# Step 5: Start the frontend development server (in another terminal)
 npm run dev
+
+# Or run both simultaneously:
+npm run dev:all
 ```
+
+## Backend Server
+
+The project includes a backend server that fetches courses from Udemy and Coursera. The server runs on port 3001.
+
+**To start the backend server:**
+```sh
+npm run dev:server
+```
+
+**To run both frontend and backend together:**
+```sh
+npm run dev:all
+```
+
+The backend server provides an API endpoint at `/api/courses/external` that fetches free courses from:
+- Udemy: https://www.udemy.com/courses/free/
+- Coursera: https://www.coursera.org/courses?query=free
+
+**Note:** The backend server must be running for the External Courses tab to work in the frontend.
 
 **Edit a file directly in GitHub**
 

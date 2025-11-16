@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { generateRoadmap } from '@/lib/gemini';
+import { generateRoadmap, generateDetailedRoadmap, type RoadmapQuestionnaire, type DetailedRoadmap } from '@/lib/gemini';
 
 export interface Milestone {
   id: string;
@@ -45,6 +45,44 @@ export async function createRoadmap(userId: string, goal: string) {
   } catch (error: any) {
     console.error('Error creating roadmap:', error);
     return { roadmap: null, error: error.message };
+  }
+}
+
+/**
+ * Create a detailed roadmap using questionnaire answers
+ */
+export async function createDetailedRoadmap(userId: string, questionnaire: RoadmapQuestionnaire) {
+  try {
+    // Generate detailed roadmap using Gemini
+    const detailedRoadmap = await generateDetailedRoadmap(questionnaire);
+
+    // Convert detailed roadmap to milestones format for database compatibility
+    const milestones = detailedRoadmap.stages.map((stage) => ({
+      id: stage.id,
+      title: stage.title,
+      description: `${stage.description}\n\nTopics: ${stage.topics.join(', ')}\nExercises: ${stage.exercises.join(', ')}${stage.projects ? `\nProjects: ${stage.projects.join(', ')}` : ''}`,
+      difficulty: stage.difficulty,
+      estimatedHours: stage.estimatedHours,
+      completed: stage.completed,
+    }));
+
+    // Save to database
+    const { data, error } = await supabase
+      .from('roadmaps')
+      .insert({
+        user_id: userId,
+        goal: questionnaire.topic,
+        milestones,
+        progress_percentage: 0,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { roadmap: data, detailedRoadmap, error: null };
+  } catch (error: any) {
+    console.error('Error creating detailed roadmap:', error);
+    return { roadmap: null, detailedRoadmap: null, error: error.message };
   }
 }
 

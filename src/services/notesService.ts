@@ -39,25 +39,87 @@ export async function uploadNoteFile(file: File, userId: string): Promise<string
 }
 
 /**
- * Extract text from uploaded file (basic implementation)
- * In production, you'd use a proper text extraction library
+ * Extract text from uploaded file
+ * Supports text files and PDFs
  */
 export async function extractTextFromFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = reject;
-      reader.readAsText(file);
-    } else if (file.type.startsWith('text/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = reject;
-      reader.readAsText(file);
-    } else {
-      // For PDFs, images, etc., we'll need OCR or PDF parsing
-      // For now, return a placeholder message
-      resolve(`[File: ${file.name}]\n\nThis file type (${file.type || 'unknown'}) requires additional processing. For now, please upload a text file (.txt) or paste your content directly.`);
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Handle text files
+      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      } else if (file.type.startsWith('text/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      } 
+      // Handle PDF files
+      else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+        try {
+          // Dynamically import pdfjs-dist
+          const pdfjsLib = await import('pdfjs-dist');
+          
+          // Configure worker to use a path that Vite can serve
+          // Import worker as a module URL which Vite will handle
+          if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+            try {
+              // Try importing worker as a module - Vite will handle it
+              const workerModule = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+              pdfjsLib.GlobalWorkerOptions.workerSrc = workerModule.default;
+            } catch (e) {
+              // If module import fails, disable worker (runs on main thread)
+              console.warn('Could not load PDF worker, using main thread');
+              pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+            }
+          }
+          
+          // Read file as array buffer
+          const arrayBuffer = await file.arrayBuffer();
+          
+          // Load PDF document - PDF.js will automatically fallback to main thread if worker fails
+          const loadingTask = pdfjsLib.getDocument({ 
+            data: arrayBuffer,
+            useSystemFonts: true,
+            verbosity: 0, // Reduce console warnings
+          });
+          const pdf = await loadingTask.promise;
+          
+          // Extract text from all pages
+          let fullText = '';
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            
+            // Combine text items from the page, preserving some structure
+            const pageText = textContent.items
+              .map((item: any) => item.str)
+              .join(' ');
+            
+            fullText += pageText + '\n\n';
+          }
+          
+          const extractedText = fullText.trim();
+          if (!extractedText) {
+            reject(new Error(`Unable to extract text from this PDF (${file.name}). The file may be image-based, encrypted, or contain no extractable text.`));
+            return;
+          }
+          
+          resolve(extractedText);
+        } catch (pdfError: any) {
+          console.error('Error extracting text from PDF:', pdfError);
+          reject(new Error(`Failed to extract text from PDF: ${pdfError.message || 'Unknown error'}`));
+        }
+      } 
+      // For other file types, return error message
+      else {
+        reject(new Error(`Unsupported file type: ${file.type || 'unknown'}. Please upload a text file (.txt) or PDF file (.pdf).`));
+      }
+    } catch (error) {
+      reject(error);
     }
   });
 }
