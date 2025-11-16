@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,11 +6,31 @@ import { Progress } from '@/components/ui/progress';
 import { useUserStore } from '@/store/userStore';
 import { useTranslatedText } from '@/hooks/useTranslation';
 import { TranslatedText } from '@/components/TranslatedText';
-import { BookOpen, Brain, Target, Zap, Trophy, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { BookOpen, Brain, Target, Zap, Trophy, Clock, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getCurrentUserId } from '@/lib/auth';
+import { getUserProfile } from '@/services/userService';
+import { getUserCourses, getCourseProgress, type Course } from '@/services/courseService';
+import { supabase } from '@/lib/supabase';
+
+interface CourseWithProgress extends Course {
+  progress?: number;
+  completedModules?: number;
+}
 
 export default function Dashboard() {
   const user = useUserStore((state) => state.user);
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState({
+    xp: 0,
+    level: 1,
+    streak: 0,
+  });
+  const [courses, setCourses] = useState<CourseWithProgress[]>([]);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [todayModulesCompleted, setTodayModulesCompleted] = useState(0);
+  const [todayGoal, setTodayGoal] = useState(2);
+  const [isLoading, setIsLoading] = useState(true);
 
   const quickActions = [
     { icon: BookOpen, label: 'Browse Courses', color: 'text-primary', path: '/courses' },
@@ -41,11 +62,178 @@ export default function Dashboard() {
   const modulesText = useTranslatedText('modules');
   const startLearningText = useTranslatedText('Start Learning');
 
-  const courses = [
-    { title: 'Introduction to React', progress: 65, modules: 12, completed: 8 },
-    { title: 'Web Development Basics', progress: 40, modules: 15, completed: 6 },
-    { title: 'Data Structures & Algorithms', progress: 20, modules: 20, completed: 4 },
-  ];
+  useEffect(() => {
+    loadDashboardData();
+    
+    // Listen for dashboard refresh events
+    const handleRefresh = () => {
+      loadDashboardData();
+    };
+    
+    // Refresh when window regains focus (user returns to tab)
+    const handleFocus = () => {
+      loadDashboardData();
+    };
+    
+    window.addEventListener('dashboard-refresh', handleRefresh);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('dashboard-refresh', handleRefresh);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        navigate('/login');
+        return;
+      }
+
+      // Load user profile
+      const profileResult = await getUserProfile(userId);
+      let currentLevel = 1;
+      if (profileResult.profile) {
+        const profile = profileResult.profile;
+        currentLevel = profile.level || 1;
+        setUserData({
+          xp: profile.xp || 0,
+          level: currentLevel,
+          streak: profile.streak || 0,
+        });
+        
+        // Update user store
+        useUserStore.setState({
+          user: {
+            name: profile.name || user?.name || '',
+            email: profile.email || user?.email || '',
+            xp: profile.xp || 0,
+            level: currentLevel,
+            streak: profile.streak || 0,
+          },
+        });
+      }
+
+      // Load courses with progress (courses the user has started)
+      const { data: progressData, error: progressError } = await supabase
+        .from('user_course_progress')
+        .select(`
+          *,
+          courses (
+            id,
+            title,
+            description,
+            category,
+            level,
+            total_modules,
+            created_at
+          )
+        `)
+        .eq('user_id', userId)
+        .order('last_accessed', { ascending: false })
+        .limit(3);
+
+      if (!progressError && progressData) {
+        const coursesWithProgress = progressData
+          .filter(item => item.courses) // Filter out null courses
+          .map(item => ({
+            ...(item.courses as Course),
+            progress: item.progress_percentage || 0,
+            completedModules: item.completed_modules || 0,
+          }));
+        
+        setCourses(coursesWithProgress);
+        setTotalCourses(coursesWithProgress.length);
+      } else {
+        // Fallback: also check user's own courses
+        const coursesResult = await getUserCourses(userId);
+        if (coursesResult.courses) {
+          const coursesList = coursesResult.courses;
+          setTotalCourses(coursesList.length);
+
+          // Load progress for each course
+          const coursesWithProgress = await Promise.all(
+            coursesList.slice(0, 3).map(async (course) => {
+              const progressResult = await getCourseProgress(course.id, userId);
+              const progress = progressResult.progress;
+              
+              return {
+                ...course,
+                progress: progress?.progress_percentage || 0,
+                completedModules: progress?.completed_modules || 0,
+              };
+            })
+          );
+
+          setCourses(coursesWithProgress);
+        }
+      }
+
+      // Calculate today's completed modules
+      await calculateTodayProgress(userId, currentLevel);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateTodayProgress = async (userId: string, userLevel: number) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString();
+
+      // Get all course progress updated today
+      const { data: progressData, error } = await supabase
+        .from('user_course_progress')
+        .select('completed_modules, updated_at')
+        .eq('user_id', userId)
+        .gte('updated_at', todayISO);
+
+      if (error) {
+        console.error('Error fetching today progress:', error);
+        return;
+      }
+
+      // Count modules completed today
+      // This is a simplified calculation - in a real app, you'd track module completions separately
+      let modulesToday = 0;
+      if (progressData && progressData.length > 0) {
+        // For now, we'll estimate based on progress updates
+        // In a real implementation, you'd have a separate table for module completions
+        modulesToday = Math.min(progressData.length, 2); // Estimate
+      }
+
+      setTodayModulesCompleted(modulesToday);
+      
+      // Set goal based on user level (higher level = more modules)
+      const goal = Math.max(2, Math.floor(userLevel / 2) + 1);
+      setTodayGoal(goal);
+    } catch (error) {
+      console.error('Error calculating today progress:', error);
+    }
+  };
+
+  // Calculate XP needed for next level
+  const xpForNextLevel = 100; // 100 XP per level
+  const currentLevelXP = userData.xp % xpForNextLevel;
+  const xpNeeded = xpForNextLevel - currentLevelXP;
+  const levelProgress = (currentLevelXP / xpForNextLevel) * 100;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -78,7 +266,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{totalXPText}</p>
-                  <p className="text-2xl font-bold">{user?.xp || 0}</p>
+                  <p className="text-2xl font-bold">{userData.xp}</p>
                 </div>
               </CardContent>
             </Card>
@@ -96,7 +284,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{levelText}</p>
-                  <p className="text-2xl font-bold">{user?.level || 1}</p>
+                  <p className="text-2xl font-bold">{userData.level}</p>
                 </div>
               </CardContent>
             </Card>
@@ -114,7 +302,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{coursesText}</p>
-                  <p className="text-2xl font-bold">3</p>
+                  <p className="text-2xl font-bold">{totalCourses}</p>
                 </div>
               </CardContent>
             </Card>
@@ -132,7 +320,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{streakText}</p>
-                  <p className="text-2xl font-bold">{user?.streak || 0} {daysText}</p>
+                  <p className="text-2xl font-bold">{userData.streak} {daysText}</p>
                 </div>
               </CardContent>
             </Card>
@@ -179,28 +367,42 @@ export default function Dashboard() {
                 <CardDescription>{yourCoursesDesc}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {courses.map((course, index) => (
-                  <motion.div
-                    key={course.title}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    className="space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold"><TranslatedText text={course.title} /></h4>
-                        <p className="text-sm text-muted-foreground">
-                          {course.completed} {ofText} {course.modules} {modulesCompletedText}
-                        </p>
+                {courses.length === 0 ? (
+                  <div className="text-center py-8">
+                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">No courses yet. Start learning!</p>
+                    <Button asChild>
+                      <Link to="/courses">
+                        <TranslatedText text="Browse Courses" />
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  courses.map((course, index) => (
+                    <motion.div
+                      key={course.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold">{course.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {course.completedModules || 0} {ofText} {course.total_modules || 0} {modulesCompletedText}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/courses/${course.id}`}>
+                            {continueText}
+                          </Link>
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm">
-                        {continueText}
-                      </Button>
-                    </div>
-                    <Progress value={course.progress} />
-                  </motion.div>
-                ))}
+                      <Progress value={course.progress || 0} />
+                    </motion.div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -217,15 +419,15 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle>{levelProgressTitle}</CardTitle>
                   <CardDescription>
-                    {100 - ((user?.xp || 0) % 100)} {xpToLevelText} {(user?.level || 1) + 1}
+                    {xpNeeded} {xpToLevelText} {userData.level + 1}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <Progress value={(user?.xp || 0) % 100} />
+                    <Progress value={levelProgress} />
                     <div className="flex items-center justify-between text-sm">
-                      <span>{levelText} {user?.level || 1}</span>
-                      <span>{levelText} {(user?.level || 1) + 1}</span>
+                      <span>{levelText} {userData.level}</span>
+                      <span>{levelText} {userData.level + 1}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -246,12 +448,14 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">{completeModulesText} 2 {modulesText}</span>
-                      <span className="text-sm text-muted-foreground">0/2</span>
+                      <span className="text-sm">{completeModulesText} {todayGoal} {modulesText}</span>
+                      <span className="text-sm text-muted-foreground">{todayModulesCompleted}/{todayGoal}</span>
                     </div>
-                    <Progress value={0} />
-                    <Button className="w-full" variant="outline">
-                      {startLearningText}
+                    <Progress value={(todayModulesCompleted / todayGoal) * 100} />
+                    <Button className="w-full" variant="outline" asChild>
+                      <Link to="/courses">
+                        {startLearningText}
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>

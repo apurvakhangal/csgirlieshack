@@ -6,10 +6,17 @@ import { useUserStore } from '@/store/userStore';
  */
 export async function updateUserXP(userId: string, xpToAdd: number) {
   try {
-    const currentUser = useUserStore.getState().user;
-    if (!currentUser) throw new Error('User not found');
+    // Get current XP from database first
+    const { data: currentUserData, error: fetchError } = await supabase
+      .from('users')
+      .select('xp, level')
+      .eq('id', userId)
+      .single();
 
-    const newXP = currentUser.xp + xpToAdd;
+    if (fetchError) throw fetchError;
+
+    const currentXP = currentUserData?.xp || 0;
+    const newXP = currentXP + xpToAdd;
     const newLevel = Math.floor(newXP / 100) + 1;
 
     // Update in database
@@ -25,7 +32,18 @@ export async function updateUserXP(userId: string, xpToAdd: number) {
     if (error) throw error;
 
     // Update local store
-    useUserStore.getState().addXP(xpToAdd);
+    useUserStore.setState((state) => {
+      if (state.user) {
+        return {
+          user: {
+            ...state.user,
+            xp: newXP,
+            level: newLevel,
+          },
+        };
+      }
+      return state;
+    });
 
     return { xp: newXP, level: newLevel, error: null };
   } catch (error: any) {
