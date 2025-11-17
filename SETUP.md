@@ -6,7 +6,7 @@ This guide will help you set up the EduNiverse project with Supabase and Gemini 
 
 * Node.js 18+ installed
 * A Supabase account (free tier works)
-* Gemini API key (already provided)
+* Gemini API key&#x20;
 
 ## Step 1: Environment Variables
 
